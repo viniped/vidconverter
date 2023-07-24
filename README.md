@@ -38,4 +38,4 @@ Importante: Certifique-se sempre de fazer backup de seus arquivos de vídeo ante
 
 Aviso Legal:
 
-O script VidConverter é fornecido "como está" e sem garantias. É sua responsabilidade garantir que você tenha os direitos e permissões necessários para realizar conversões de vídeo nos arquivos da pasta de entrada especificada. O autor do script e a OpenAI não assumem nenhuma responsabilidade por qualquer uso indevido ou danos causados pelo uso deste script.
+O script VidConverter é fornecido "como está" e sem garantias. É sua responsabilidade garantir que você tenha os direitos e permissões necessários para realizar conversões de vídeo nos arquivos da pasta de entrada especificada. O autor do script não assume nenhuma responsabilidade por qualquer uso indevido ou danos causados pelo uso deste script.
