@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
 from colorama import Fore
 import pyfiglet
 import random
 import subprocess
 from utils import delete_videos_without_duration
-
+from tqdm import tqdm
 class Banner:
     def __init__(self, banner):
         self.banner = banner
@@ -39,7 +38,6 @@ def get_codec(file_path, stream_type):
 def convert_file(file_path):
     video_codec = get_codec(file_path, 'v')
     audio_codec = get_codec(file_path, 'a')
-
     cmd = [
         'ffmpeg',
         '-v', 'quiet',
@@ -63,24 +61,37 @@ def convert_file(file_path):
     else:        
         cmd.extend(['-c:v', 'h264', '-c:a', 'aac', '-preset', 'ultrafast', '-threads', '2','-crf' '23', '-maxrate' '4M'])
    
-    output_file = f"{os.path.splitext(file_path)[0]}_conv.mp4"
+    output_file = f"{os.path.splitext(file_path)[0]}.mp4"
     cmd.append(output_file)
-    
-    subprocess.run(cmd)
+    with open('log.txt', 'w') as log_file:
+        subprocess.run(cmd, stdout=log_file, stderr=subprocess.STDOUT)
     os.remove(file_path)
 
 def convert_videos_in_folder(folder_path):
-    delete_videos_without_duration(folder_path)    
-    
-    for subdir, _, files in os.walk(folder_path):
-        for file in files:
-            if file.lower().endswith((".mp4", ".ts", ".mpg", ".mpeg", ".avi", ".mkv", ".flv", ".3gp", ".rmvb", ".webm", ".vob", ".ogv", ".rrc",
-                                      ".gifv", ".mng", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".asf", ".amv", ".m4p", ".m4v", ".mp2", ".mpe",
-                                      ".mpv", ".m4v", ".svi", ".3g2", ".mxf", ".roq", ".nsv", ".f4v", ".f4p", ".f4a", ".f4b")):
-                file_path = os.path.join(subdir, file)
-                convert_file(file_path)
-                if not file_path.lower().endswith("_conv.mp4"):
-                    videos_to_convert = True
+    delete_videos_without_duration(folder_path)
+    videos_to_convert = []  # Inicialize uma lista de vídeos a serem convertidos
+    video_extensions = (".mp4", ".ts", ".mpg", ".mpeg", ".avi", ".mkv", ".flv", ".3gp", ".rmvb", ".webm", ".vob", ".ogv", ".rrc",
+                    ".gifv", ".mng", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".asf", ".amv", ".m4p", ".m4v", ".mp2", ".mpe",
+                    ".mpv", ".m4v", ".svi", ".3g2", ".mxf", ".roq", ".nsv", ".f4v", ".f4p", ".f4a", ".f4b")
+
+    with tqdm(total=len(next(os.walk(folder_path))[1]+next(os.walk(folder_path))[2]), desc="Procurando vídeos") as pbar:
+        for subdir, _, files in os.walk(folder_path):
+            for file in files:
+                if file.lower().endswith(video_extensions):
+                    file_path = os.path.join(subdir, file)
+                    if not file_path.lower().endswith(".mp4"):
+                        videos_to_convert.append(file_path)
+            pbar.update(1)
+
+    if videos_to_convert:
+        total_videos = len(videos_to_convert)
+        print("Total de videos para converter:", total_videos)
+        with tqdm(total=total_videos, desc="Convertendo videos", ) as pbar:
+            for video in videos_to_convert:
+                convert_file(video)
+                pbar.update(1)
+    if not videos_to_convert:
+        print("Sem videos para converter")
 
 def main():
     banner = Banner('VidConverter')
