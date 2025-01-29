@@ -2,3 +2,4 @@ colorama
 pyfiglet
 rich
 tqdm
+halo

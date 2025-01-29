@@ -5,7 +5,10 @@ from pathlib import Path
 from colorama import Fore
 import pyfiglet
 import random
+from tqdm import tqdm
 from utils import *
+
+spinner = Halo(text='Verificando vídeos para conversão...', spinner='dots')
 
 
 class Banner:
@@ -76,7 +79,6 @@ def convert_file(file_path):
    
     cmd.append(output_file)
     
-    print(cmd)
     subprocess.run(cmd)
     os.remove(file_path)
 
@@ -84,7 +86,6 @@ def convert_file(file_path):
 def convert_videos_in_folder(folder_path):
     delete_videos_without_duration(folder_path)
     
-    spinner = Halo(text='Verificando vídeos para conversão...', spinner='dots')
     spinner.start()
 
     videos_to_convert = []
@@ -104,25 +105,29 @@ def convert_videos_in_folder(folder_path):
     total_videos = len(videos_to_convert)
     
     if total_videos == 0:
-        print("Todos os vídeos já estão no formato correto.")
+        spinner.succeed("Todos os vídeos já estão no formato correto.")
         return
     else:
-        print(f"{total_videos} vídeos precisam ser convertidos.")
+        spinner.info(f"{total_videos} vídeos precisam ser convertidos.")
 
-    for index, video_path in enumerate(videos_to_convert):
-        remaining_videos = total_videos - index
-        print(f"Vídeos restantes: {remaining_videos}")
-        convert_file(video_path)
+    with tqdm(total=total_videos, desc="Convertendo vídeos") as pbar:
+        for index, video_path in enumerate(videos_to_convert):
+            convert_file(video_path)
+            pbar.update(1)            
 
-    print("A conversão dos vídeos foi concluída.")
+    spinner.succeed("A conversão dos vídeos foi concluída.")
 
 
 def main():
-    banner = Banner('VidConverter')
-    banner.print_banner()    
-    folder_path = input("Digite o caminho da pasta onde estão os vídeos: ")
-    delete_videos_without_duration(folder_path)
-    convert_videos_in_folder(folder_path)
+    try:
+        banner = Banner('VidConverter')
+        banner.print_banner()
+        folder_path = input("Digite o caminho da pasta onde estão os vídeos: ")
+        folder_path = '/home/paulo/workspace/video_teste'
+        delete_videos_without_duration(folder_path)
+        convert_videos_in_folder(folder_path)
+    except KeyboardInterrupt:
+        spinner.fail('Operação Interrompida pelo usuário')
 
 if __name__ == '__main__':
     main()
