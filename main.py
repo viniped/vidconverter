@@ -123,7 +123,6 @@ def main():
         banner = Banner('VidConverter')
         banner.print_banner()
         folder_path = input("Digite o caminho da pasta onde estão os vídeos: ")
-        folder_path = '/home/paulo/workspace/video_teste'
         delete_videos_without_duration(folder_path)
         convert_videos_in_folder(folder_path)
     except KeyboardInterrupt:
