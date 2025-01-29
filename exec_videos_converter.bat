@@ -1,3 +1,3 @@
-python video_converter.py
+python main.py
 cmd /k
 pause
